@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css" media="screen" title="no title" charset="utf-8">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js" charset="utf-8"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.6.1/lodash.min.js" charset="utf-8"></script>
+
+		<style media="screen">
+			h1, h3, p {
+				text-align: center
+			}
+
+			h1 {
+				margin-bottom: 1em;
+			}
+
+			p {
+				font-style: italic;
+			}
+
+			#data img {
+				max-width: 480px;
+				text-align: center;
+			}
+
+			.wrapper {
+				padding: 2em;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="wrapper">
+			<div id="data"/>
+		</div>
+
+		<script type="text/javascript">
+			var subs = [
+				'ApocalypsePorn',
+				'til',
+				'TodayILearned'
+			];
+
+			function fillElementWithData(sub, entry) {
+				var element = $('#data');
+				var subTitle = $('<h1>').text(sub);
+				var title = $('<h3>').text(entry.data.title);
+
+				var text = null, image = null;
+				if (entry.data.selftext) text = $('<p>').text(entry.data.selftext);
+				if (entry.data.preview) {
+					if (entry.data.preview.images && entry.data.preview.images.length) {
+						var imageContainer = $('<div>').attr('style', 'text-align: center; margin-bottom: 1em');
+						image = imageContainer.append($('<img>').attr('src', _.sample(entry.data.preview.images).source.url));
+					}
+				}
+
+				element.fadeOut(function(){
+					element.empty();
+					element.append(subTitle);
+					element.append(title);
+					if (image) element.append(image);
+					if (text) element.append(text);
+					element.fadeIn();
+				});
+			}
+
+			function resolveRandomEntry() {
+				var sub = _.sample(subs);
+				var url = 'https://www.reddit.com/r/' + sub + '/.json';
+				$.get(url)
+					.then(function success(response) {
+						var entry = _.sample(response.data.children);
+						fillElementWithData(sub, entry);
+						console.log(entry);
+					});
+			}
+
+			setInterval(resolveRandomEntry, 1000*20);
+			resolveRandomEntry();
+		</script>
+	</body>
+</html>
